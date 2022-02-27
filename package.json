@@ -1,0 +1,17 @@
+{
+  "name": "myspotify",
+  "version": "1.0.0",
+  "author": "Johan Satgé",
+  "description": "https://myspotify.satge.me",
+  "scripts": {
+    "build": "node build.js",
+    "watch": "node build.js --watch"
+  },
+  "private": true,
+  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/johansatge/myspotify"
+  },
+  "license": "MIT"
+}

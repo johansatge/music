@@ -5,7 +5,7 @@ const fsp = require('fs').promises
 const http = require('http')
 const { networkInterfaces } = require('os')
 
-const serverPort = 8789
+const serverPort = 9898
 const serverPath = path.join(__dirname, 'dist')
 
 module.exports = {
@@ -31,7 +31,8 @@ async function onLocalServerRequest(request, response) {
     if (request.method !== 'GET') {
       throw new Error(`Invalid method ${request.method}`)
     }
-    const requestPath = getRequestPath(request.url)
+    // @todo better method?
+    const requestPath = getRequestPath(new URL(request.url, 'http://localhost').pathname)
     const contents = await fsp.readFile(path.join(serverPath, requestPath))
     response.writeHead(200, {
       'Content-Type': getMimeType(requestPath),

@@ -3,6 +3,13 @@ const fsp = require('fs').promises
 const path = require('path')
 const { startLocalServer } = require('./server.js')
 
+try {
+  const { SPOTIFY_CLIENT_ID } = require('./.env.js')
+  process.env.SPOTIFY_CLIENT_ID = SPOTIFY_CLIENT_ID
+} catch (error) {
+  /* do nothing */
+}
+
 const srcPath = path.join(__dirname, 'src')
 const distPath = path.join(__dirname, 'dist')
 
@@ -56,15 +63,15 @@ async function getStyles() {
 }
 
 async function getScripts() {
-  let css = await fsp.readFile(path.join(srcPath, 'scripts.js'), 'utf8')
-  css = css.replace(/\n/g, ';')
-  css = css.replace(/ {2,}/g, '')
-  return css
+  let js = await fsp.readFile(path.join(srcPath, 'scripts.js'), 'utf8')
+  js = js.replace(/ {2,}/g, '')
+  return js
 }
 
 async function writeHtml({ html, styles, scripts }) {
   html = html.replace('__styles__', styles)
   html = html.replace('__scripts__', scripts)
+  html = html.replace('__spotifyClientId__', process.env.SPOTIFY_CLIENT_ID)
   html = html.replace(/ {2,}/g, '')
   await fsp.writeFile(path.join(distPath, 'index.html'), html, 'utf8')
 }

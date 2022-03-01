@@ -10,12 +10,12 @@ function initLoginUi() {
   const loginButtonNode = document.querySelector('[js-login-button]')
   getAuthUrl().then(({ authUrl, verifierString }) => {
     loginButtonNode.href = authUrl
-    window.localStorage.setItem('mySpotifyVerifier', verifierString)
+    window.localStorage.setItem('musicVerifier', verifierString)
   })
 }
 
 function hasTokens() {
-  const raw = window.localStorage.getItem('mySpotifyTokens')
+  const raw = window.localStorage.getItem('musicTokens')
   try {
     const tokens = JSON.parse(raw)
     return tokens && tokens.accessToken ? true : false
@@ -32,9 +32,9 @@ function hasAuthCode() {
 function connectAndRefresh() {
   const currentUrl = new URL(document.location.href)
   const code = currentUrl.searchParams.get('code')
-  const verifier = window.localStorage.getItem('mySpotifyVerifier')
+  const verifier = window.localStorage.getItem('musicVerifier')
   if (code && verifier) {
-    window.localStorage.removeItem('mySpotifyVerifier')
+    window.localStorage.removeItem('musicVerifier')
     fetchAndStoreAccessToken({ code, verifier })
       .then(() => {
         window.location.href = '/'
@@ -67,7 +67,7 @@ function fetchAndStoreAccessToken({ code, verifier }) {
         refreshToken: json.refresh_token,
         expires: Date.now() + json.expires_in * 1000
       }
-      window.localStorage.setItem('mySpotifyTokens', JSON.stringify(data))
+      window.localStorage.setItem('musicTokens', JSON.stringify(data))
     })
 }
 

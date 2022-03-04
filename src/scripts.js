@@ -1,5 +1,19 @@
-if (hasTokens()) {
+if (getTokensFromStorage()) {
   console.log('@todo show main UI')
+  fetchProfile()
+    .then((profile) => {
+      console.log('/me', profile)
+    })
+    .catch((error) => {
+      console.log(error)
+    })
+  fetchPlaylists()
+    .then((playlists) => {
+      console.log('playlists', playlists)
+    })
+    .catch((error) => {
+      console.log(error)
+    })
 } else if (hasAuthCode()) {
   connectAndRefresh()
 } else {
@@ -14,13 +28,13 @@ function initLoginUi() {
   })
 }
 
-function hasTokens() {
+function getTokensFromStorage() {
   const raw = window.localStorage.getItem('musicTokens')
   try {
     const tokens = JSON.parse(raw)
-    return tokens && tokens.accessToken ? true : false
+    return tokens && tokens.accessToken ? tokens : null
   } catch(error) {
-    return false
+    return null
   }
 }
 
@@ -40,9 +54,55 @@ function connectAndRefresh() {
         window.location.href = '/'
       })
       .catch((error) => {
-        console.log('Error when fetching access token', error)
+        // @todo handle connection error
       })
   }
+}
+
+async function fetchPlaylists() {
+  let playlists = []
+  const limit = 50
+  let offset = 0
+  do {
+    const json = await fetchApi({
+      endpoint: '/me/playlists',
+      query: { limit, offset },
+    })
+    if (json.items) {
+      playlists = [...playlists, ...json.items]
+    }
+    if (!json.items || json.items.length < limit) {
+      break
+    }
+    offset += json.items.length
+  } while(true)
+  return playlists
+}
+
+async function fetchProfile() {
+  return fetchApi({ endpoint: '/me' })
+}
+
+async function fetchApi({ endpoint, query = {} }) {
+  const tokens = getTokensFromStorage()
+  // @todo refresh access token if needed
+  const urlSearchParams = new URLSearchParams()
+  for(const [key, value] of Object.entries(query)) {
+    urlSearchParams.set(key, value)
+  }
+  const url = `https://api.spotify.com/v1${endpoint}?${urlSearchParams.toString()}`
+  const response = await window.fetch(url, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${tokens.accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  })
+  const json = await response.json()
+  if (json.error) {
+    throw new Error(`${json.error.message} (${json.error.status})`)
+  }
+  return json
 }
 
 // https://developer.spotify.com/documentation/general/guides/authorization/code-flow/

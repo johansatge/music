@@ -1,3 +1,5 @@
+window.spotifyClientId = __SPOTIFY_CLIENT_ID__
+
 if (getTokensFromStorage()) {
   console.log('@todo show main UI')
   fetchProfile()

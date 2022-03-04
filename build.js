@@ -1,6 +1,7 @@
 const fs = require('fs')
 const fsp = require('fs').promises
 const path = require('path')
+const esbuild = require('esbuild')
 const { startLocalServer } = require('./server.js')
 
 try {
@@ -62,16 +63,29 @@ async function getStyles() {
   return css
 }
 
+
 async function getScripts() {
-  let js = await fsp.readFile(path.join(srcPath, 'scripts.js'), 'utf8')
-  js = js.replace(/ {2,}/g, '')
-  return js
+  const result = await esbuild.build({
+    entryPoints: [path.join(__dirname, './src/index.js')],
+    bundle: true,
+    minify: true,
+    entryNames: '[name].[hash]',
+    outdir: distPath,
+    metafile: true,
+    define: {
+      __SPOTIFY_CLIENT_ID__: JSON.stringify(process.env.SPOTIFY_CLIENT_ID),
+    },
+  })
+  if (result.errors.length > 0) {
+    throw new Error(result.errors[0])
+  }
+  const assets = Object.keys(result.metafile.outputs)
+  return `/${path.parse(assets[0]).base}`
 }
 
 async function writeHtml({ html, styles, scripts }) {
   html = html.replace('__styles__', styles)
   html = html.replace('__scripts__', scripts)
-  html = html.replace('__spotifyClientId__', process.env.SPOTIFY_CLIENT_ID)
   html = html.replace(/ {2,}/g, '')
   await fsp.writeFile(path.join(distPath, 'index.html'), html, 'utf8')
 }

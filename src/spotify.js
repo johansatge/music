@@ -1,9 +1,61 @@
 const spotifyClientId = __SPOTIFY_CLIENT_ID__
 const localStorageTokens = 'musicTokens'
 const localStorageVerifier = 'musicVerifier'
+const apiScopes = [
+  'user-read-playback-state',
+  'user-read-currently-playing',
+  'user-read-private',
+  'user-follow-read',
+  'user-library-read',
+  'user-read-playback-position',
+  'user-read-email',
+  'user-top-read',
+  'user-read-recently-played',
+  'playlist-read-collaborative',
+  'playlist-read-private',
+]
+
+export async function fetchSpotifyPlaylists() {
+  let playlists = []
+  const limit = 50
+  let offset = 0
+  let json = null
+  do {
+    json = await fetchApi({
+      endpoint: '/me/playlists',
+      query: { limit, offset },
+    })
+    if (json.items) {
+      playlists = [...playlists, ...json.items]
+    }
+    offset += json.items.length
+  } while(json.next)
+  return playlists
+}
+
+export async function fetchSpotifyProfile() {
+  return fetchApi({ endpoint: '/me' })
+}
+
 
 export function isConnectedToSpotify() {
   return getTokensFromStorage() ? true : false
+}
+
+export async function handleSpotifyAuth() {
+  const currentUrl = new URL(document.location.href)
+  const code = currentUrl.searchParams.get('code')
+  if (typeof code !== 'string' || code.length === 0) {
+    return
+  }
+  await fetchAndStoreAccessToken({ grantType: 'authorization_code', code })
+  window.localStorage.removeItem(localStorageVerifier)
+  window.location.href = '/'
+}
+
+export function logoutFromSpotify() {
+  window.localStorage.removeItem(localStorageTokens)
+  window.location.href = '/'
 }
 
 function getTokensFromStorage() {
@@ -16,53 +68,8 @@ function getTokensFromStorage() {
   }
 }
 
-export function handleSpotifyAuth() {
-  const currentUrl = new URL(document.location.href)
-  const code = currentUrl.searchParams.get('code')
-  if (typeof code !== 'string' || code.length === 0) {
-    return Promise.resolve()
-  }
-  const verifier = window.localStorage.getItem(localStorageVerifier)
-  if (code && verifier) {
-    window.localStorage.removeItem(localStorageVerifier)
-    return fetchAndStoreAccessToken({ code, verifier })
-      .then(() => {
-        window.location.href = '/'
-      })
-  }
-  return Promise.resolve()
-}
-
-export async function fetchSpotifyPlaylists() {
-  let playlists = []
-  const limit = 50
-  let offset = 0
-  do {
-    const json = await fetchApi({
-      endpoint: '/me/playlists',
-      query: { limit, offset },
-    })
-    if (json.items) {
-      playlists = [...playlists, ...json.items]
-    }
-    if (!json.items || json.items.length < limit) {
-      break
-    }
-    offset += json.items.length
-  } while(true)
-  return playlists
-}
-
-export async function fetchSpotifyProfile() {
-  return fetchApi({ endpoint: '/me' })
-}
-
 async function fetchApi({ endpoint, query = {} }) {
-  const tokens = getTokensFromStorage()
-  // @todo refresh access token if needed
-  if (!tokens || !tokens.accessToken) {
-    throw new Error('No access token found in storage')
-  }
+  const accessToken = await getFreshAccessToken()
   const urlSearchParams = new URLSearchParams()
   for(const [key, value] of Object.entries(query)) {
     urlSearchParams.set(key, value)
@@ -71,7 +78,7 @@ async function fetchApi({ endpoint, query = {} }) {
   const response = await window.fetch(url, {
     method: 'GET',
     headers: {
-      Authorization: `Bearer ${tokens.accessToken}`,
+      Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     },
   })
@@ -82,57 +89,61 @@ async function fetchApi({ endpoint, query = {} }) {
   return json
 }
 
-// https://developer.spotify.com/documentation/general/guides/authorization/code-flow/
-function fetchAndStoreAccessToken({ code, verifier }) {
-  const body = new URLSearchParams()
-  body.set('grant_type', 'authorization_code')
-  body.set('code', code)
-  body.set('redirect_uri', getRedirectUrl())
-  body.set('client_id', spotifyClientId)
-  body.set('code_verifier', verifier)
-  return window.fetch('https://accounts.spotify.com/api/token', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
-    },
-    body: body.toString(),
-  })
-    .then((response) => response.json())
-    .then((json) => {
-      const data = {
-        accessToken: json.access_token,
-        refreshToken: json.refresh_token,
-        expires: Date.now() + json.expires_in * 1000
-      }
-      window.localStorage.setItem(localStorageTokens, JSON.stringify(data))
-    })
+async function getFreshAccessToken() {
+  const tokens = getTokensFromStorage()
+  if (!tokens || !tokens.accessToken) {
+    throw new Error('No access token found in storage')
+  }
+  if (tokens.expires && Date.now() < tokens.expires && tokens.accessToken) {
+    return tokens.accessToken
+  }
+  return fetchAndStoreAccessToken({ grantType: 'refresh_token', refreshToken: tokens.refreshToken })
 }
 
+// https://developer.spotify.com/documentation/general/guides/authorization/code-flow/#request-access-token
+async function fetchAndStoreAccessToken({ grantType, refreshToken, code }) {
+  const body = new URLSearchParams()
+  body.set('grant_type', grantType)
+  body.set('client_id', spotifyClientId)
+  if (grantType === 'authorization_code') {
+    body.set('code', code)
+    body.set('code_verifier', window.localStorage.getItem(localStorageVerifier))
+    body.set('redirect_uri', getRedirectUrl())
+  }
+  if (grantType === 'refresh_token') {
+    body.set('refresh_token', refreshToken)
+  }
+  const response = await window.fetch('https://accounts.spotify.com/api/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8' },
+    body: body.toString(),
+  })
+  const json = await response.json()
+  if (json.error) {
+    throw new Error(`${json.error} (${json.error_description})`)
+  }
+  const tokens = {
+    accessToken: json.access_token,
+    expires: Date.now() + json.expires_in * 1000,
+    refreshToken: json.refresh_token || refreshToken,
+  }
+  window.localStorage.setItem(localStorageTokens, JSON.stringify(tokens))
+  return tokens.accessToken
+}
+
+// https://developer.spotify.com/documentation/general/guides/authorization/code-flow/#request-user-authorization
 export async function getSpotifyAuthUrlAndStoreVerifier() {
-  const scope = [
-    'user-read-playback-state',
-    'user-read-currently-playing',
-    'user-read-private',
-    'user-follow-read',
-    'user-library-read',
-    'user-read-playback-position',
-    'user-read-email',
-    'user-top-read',
-    'user-read-recently-played',
-    'playlist-read-collaborative',
-    'playlist-read-private',
-  ]
-  const verifierString = generateRandomString();
-  const challengeString = await challengeFromVerifier(verifierString)
+  const verifier = generateRandomString();
+  const challenge = await challengeFromVerifier(verifier)
   const queryParams = new URLSearchParams()
   queryParams.set('client_id', spotifyClientId)
   queryParams.set('response_type', 'code')
   queryParams.set('redirect_uri', getRedirectUrl())
-  queryParams.set('scope', scope.join(' '))
+  queryParams.set('scope', apiScopes.join(' '))
   queryParams.set('show_dialog', 'false')
   queryParams.set('code_challenge_method', 'S256')
-  queryParams.set('code_challenge', challengeString)
-  window.localStorage.setItem(localStorageVerifier, verifierString)
+  queryParams.set('code_challenge', challenge)
+  window.localStorage.setItem(localStorageVerifier, verifier)
   return `https://accounts.spotify.com/authorize?${queryParams.toString()}`
 }
 

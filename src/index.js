@@ -137,7 +137,7 @@ function Artist({ artist }) {
       <td>
         <a href="${getSpotifyUrl(artist)}">${artist.name}</a>
       </td>
-      <td>${artist.genres.join(', ')}</td>
+      <td>${artist.genres.map((genre) => html`<span class="main-table-tag">${genre}</span>`)}</td>
     </tr>
   `
 }

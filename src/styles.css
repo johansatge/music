@@ -203,6 +203,16 @@ html, body {
   text-decoration: none;
 }
 
+.main-table-tag {
+  font-size: 12px;
+  display: inline-block;
+  background: var(--colorLightGrey);
+  color: var(--colorText);
+  border-radius: 10px;
+  padding: 3px 8px 3px 8px;
+  margin: 0 5px 5px 0;
+}
+
 .main-loader {
   font-size: 14px;
   padding: 10px 0 10px 0;

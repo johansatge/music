@@ -17,7 +17,7 @@ handleSpotifyAuth()
     render(html`<${App} />`, document.querySelector('[js-root]'))
   })
   .catch((error) => {
-    console.log('@todo handle auth error', error)
+    console.warn(`Could not setup auth (${error.message})`)
   })
 
 function App() {
@@ -34,7 +34,7 @@ function Login() {
     getSpotifyAuthUrlAndStoreVerifier()
       .then(setAuthUrl)
       .catch((error) => {
-        console.log('@todo handle auth URL error', error)
+        console.warn(`Could not setup login (${error.message})`)
       })
   }, [])
   return html`
@@ -47,22 +47,15 @@ function Login() {
 
 function Main() {
   const [profile, setProfile] = useState(null)
-  const [playlists, setPlaylists] = useState(null)
   useEffect(() => {
     fetchSpotifyProfile().then(setProfile).catch((error) => {
-      console.log('@todo handle profile error', error)
-    })
-  }, [])
-  useEffect(() => {
-    fetchSpotifyPlaylists().then(setPlaylists).catch((error) => {
-      console.log('@todo handle playlists error', error)
+      // Do nothing on error for now
     })
   }, [])
   return html `
     <${Topbar} profile=${profile} />
     <div class="main">
-      <h2 class="main-title">Playlists</h1>
-      ${playlists && html`<${Playlists} playlists=${playlists} />`}
+      <${Playlists} />
     </div>
   `
 }
@@ -89,24 +82,68 @@ function Topbar(props) {
   `
 }
 
-function Playlists(props) {
+function Playlists() {
+  const [playlists, setPlaylists] = useState({
+    list: [],
+    isLoading: true,
+    error: null,
+  })
+  useEffect(() => {
+    fetchSpotifyPlaylists()
+      .then((playlists) => {
+        setPlaylists({
+          list: playlists,
+          isLoading: false,
+          error: null,
+        })
+      }).catch((error) => {
+        setPlaylists({
+          list: [],
+          isLoading: false,
+          error,
+        })
+      })
+  }, [])
   return html`
-    <table class="main-table" cellpadding="0" cellspacing="0">
-      <tr>
-        <th>Name</th>
-        <th>Owner</th>
-        <th>Tracks</th>
-      </tr>
-      ${props.playlists.map((playlist) => html`
+    <h2 class="main-title">Playlists</h1>
+    ${playlists.isLoading && html`
+      <div class="main-loader">
+        Loading playlists...
+      </div>
+    `}
+    ${playlists.error && html`
+      <div class="main-error">
+        An error occurred: ${playlists.error.message}
+      </div>
+    `}
+    ${!playlists.isLoading && !playlists.error && html`
+      <table class="main-table" cellpadding="0" cellspacing="0">
         <tr>
-          <td>
-            ${playlist.name}
-            <span class="main-table-desc">${playlist.description}</span>
-          </td>
-          <td>${playlist.owner.display_name}</td>
-          <td>${playlist.tracks.total}</td>
+          <th></th>
+          <th>Name</th>
+          <th>Owner</th>
+          <th>Tracks</th>
         </tr>
-      `)}
-    </table>
+        ${playlists.list.map((playlist) => html`<${Playlist} playlist=${playlist} />`)}
+      </table>
+    `}
+  `
+}
+
+function Playlist(props) {
+  const image = props.playlist.images.length > 0 ? props.playlist.images[props.playlist.images.length - 1] : null
+  const imageUrl = image ? image.url : null
+  return html`
+    <tr>
+      <td>
+        ${imageUrl && html`<img class="main-table-img" src="${imageUrl}" />`}
+      </td>
+      <td>
+        ${props.playlist.name}
+        <span class="main-table-desc">${props.playlist.description}</span>
+      </td>
+      <td>${props.playlist.owner.display_name}</td>
+      <td>${props.playlist.tracks.total}</td>
+    </tr>
   `
 }

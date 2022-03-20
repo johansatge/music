@@ -4,6 +4,7 @@
   --colorText: #e4e4e4;
   --colorText2nd: #979797;
   --colorGreen: #1db954;
+  --colorError: #bf0303;
 }
 
 @font-face {
@@ -146,7 +147,6 @@ html, body {
 }
 
 .main-table {
-  border-radius: 5px;
   width: 100%;
 }
 
@@ -168,4 +168,35 @@ html, body {
   display: block;
   color: var(--colorText2nd);
   font-size: 11px;
+}
+
+.main-table-img {
+  width: 50px;
+  height: 50px;
+  float: left;
+  background: var(--colorLightGrey);
+  border-radius: 50%;
+  margin: 0 10px 0 0;
+}
+
+@media screen and (max-width: 540px) {
+  .main-table-img {
+    width: 35px;
+    height: 35px;
+  }
+}
+
+.main-loader {
+  font-size: 14px;
+  padding: 10px 0 10px 0;
+  border-top: 1px solid var(--colorLightGrey);
+  border-bottom: 1px solid var(--colorLightGrey);
+}
+
+.main-error {
+  font-size: 14px;
+  color: var(--colorError);
+  padding: 10px 0 10px 0;
+  border-top: 1px solid var(--colorLightGrey);
+  border-bottom: 1px solid var(--colorLightGrey);
 }

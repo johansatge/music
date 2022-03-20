@@ -5,6 +5,10 @@ import {
   isConnectedToSpotify,
   fetchSpotifyProfile,
   fetchSpotifyPlaylists,
+  fetchSpotifyTopTracks,
+  fetchSpotifyTopArtists,
+  fetchSpotifyFollowedArtists,
+  getSpotifyUrl,
   handleSpotifyAuth,
   getSpotifyAuthUrlAndStoreVerifier,
   logoutFromSpotify,
@@ -55,6 +59,9 @@ function Main() {
   return html `
     <${Topbar} profile=${profile} />
     <div class="main">
+      <${FollowedArtists} />
+      <${TopArtists} />
+      <${TopTracks} />
       <${Playlists} />
     </div>
   `
@@ -68,17 +75,168 @@ function Footer() {
   `
 }
 
-function Topbar(props) {
+function Topbar({ profile }) {
   return html`
     <div class="topbar">
       <h1 class="topbar-title">
         Music
       </h1>
       <div class="topbar-user">
-        ${props.profile && `Connected as ${props.profile.display_name}`}
+        ${profile && `Connected as ${profile.display_name}`}
         <button class="topbar-button" onClick=${logoutFromSpotify}>Logout</button>
       </div>
     </div>
+  `
+}
+
+function FollowedArtists() {
+  const [followedArtists, setFollowedArtists] = useState({
+    list: [],
+    isLoading: true,
+    error: null,
+  })
+  useEffect(() => {
+    fetchSpotifyFollowedArtists()
+      .then((followedArtists) => {
+        setFollowedArtists({ list: followedArtists, isLoading: false, error: null })
+      }).catch((error) => {
+        setFollowedArtists({ list: [], isLoading: false, error })
+      })
+  }, [])
+  return html`
+    <h2 class="main-title">Followed Artists</h1>
+    ${followedArtists.isLoading && html`
+      <div class="main-loader">
+        Loading followed artists...
+      </div>
+    `}
+    ${followedArtists.error && html`
+      <div class="main-error">
+        An error occurred: ${followedArtists.error.message}
+      </div>
+    `}
+    ${!followedArtists.isLoading && !followedArtists.error && html`
+      <table class="main-table" cellpadding="0" cellspacing="0">
+        <tr>
+          <th></th>
+          <th>Name</th>
+          <th>Genre</th>
+        </tr>
+        ${followedArtists.list.map((artist) => html`<${Artist} artist=${artist} />`)}
+      </table>
+    `}
+  `
+}
+
+function TopArtists() {
+  const [topArtists, setTopArtists] = useState({
+    list: [],
+    isLoading: true,
+    error: null,
+  })
+  useEffect(() => {
+    fetchSpotifyTopArtists()
+      .then((topArtists) => {
+        setTopArtists({ list: topArtists, isLoading: false, error: null })
+      }).catch((error) => {
+        setTopArtists({ list: [], isLoading: false, error })
+      })
+  }, [])
+  return html`
+    <h2 class="main-title">Top Artists</h1>
+    ${topArtists.isLoading && html`
+      <div class="main-loader">
+        Loading top artists...
+      </div>
+    `}
+    ${topArtists.error && html`
+      <div class="main-error">
+        An error occurred: ${topArtists.error.message}
+      </div>
+    `}
+    ${!topArtists.isLoading && !topArtists.error && html`
+      <table class="main-table" cellpadding="0" cellspacing="0">
+        <tr>
+          <th></th>
+          <th>Name</th>
+          <th>Genre</th>
+        </tr>
+        ${topArtists.list.map((artist) => html`<${Artist} artist=${artist} />`)}
+      </table>
+    `}
+  `
+}
+
+function Artist({ artist }) {
+  const image = artist.images.length > 0 ? artist.images[artist.images.length - 1] : null
+  const imageUrl = image ? image.url : null
+  return html`
+    <tr>
+      <td>
+        ${imageUrl && html`<img class="main-table-img" src="${imageUrl}" />`}
+      </td>
+      <td>
+        <a href="${getSpotifyUrl(artist)}">${artist.name}</a>
+      </td>
+      <td>${artist.genres.join(', ')}</td>
+    </tr>
+  `
+}
+
+function TopTracks() {
+  const [topTracks, setTopTracks] = useState({
+    list: [],
+    isLoading: true,
+    error: null,
+  })
+  useEffect(() => {
+    fetchSpotifyTopTracks()
+      .then((topTracks) => {
+        setTopTracks({ list: topTracks, isLoading: false, error: null, })
+      }).catch((error) => {
+        setTopTracks({ list: [], isLoading: false, error })
+      })
+  }, [])
+  return html`
+    <h2 class="main-title">Top Tracks</h1>
+    ${topTracks.isLoading && html`
+      <div class="main-loader">
+        Loading top tracks...
+      </div>
+    `}
+    ${topTracks.error && html`
+      <div class="main-error">
+        An error occurred: ${topTracks.error.message}
+      </div>
+    `}
+    ${!topTracks.isLoading && !topTracks.error && html`
+      <table class="main-table" cellpadding="0" cellspacing="0">
+        <tr>
+          <th></th>
+          <th>Name</th>
+          <th>Artist</th>
+        </tr>
+        ${topTracks.list.map((track) => html`<${Track} track=${track} />`)}
+      </table>
+    `}
+  `
+}
+
+function Track({ track }) {
+  const image = track.album.images.length > 0 ? track.album.images[track.album.images.length - 1] : null
+  const imageUrl = image ? image.url : null
+  return html`
+    <tr>
+      <td>
+        ${imageUrl && html`<img class="main-table-img" src="${imageUrl}" />`}
+      </td>
+      <td>
+        <a href="${getSpotifyUrl(track)}">${track.name}</a>
+      </td>
+      <td>
+        ${track.artists.map((artist) => html`<a href="${getSpotifyUrl(artist)}">${artist.name}</a><br />`)}
+      </td>
+    </tr>
   `
 }
 
@@ -91,17 +249,9 @@ function Playlists() {
   useEffect(() => {
     fetchSpotifyPlaylists()
       .then((playlists) => {
-        setPlaylists({
-          list: playlists,
-          isLoading: false,
-          error: null,
-        })
+        setPlaylists({ list: playlists, isLoading: false, error: null })
       }).catch((error) => {
-        setPlaylists({
-          list: [],
-          isLoading: false,
-          error,
-        })
+        setPlaylists({ list: [], isLoading: false, error })
       })
   }, [])
   return html`
@@ -122,6 +272,7 @@ function Playlists() {
           <th></th>
           <th>Name</th>
           <th>Owner</th>
+          <th>Public</th>
           <th>Tracks</th>
         </tr>
         ${playlists.list.map((playlist) => html`<${Playlist} playlist=${playlist} />`)}
@@ -130,8 +281,8 @@ function Playlists() {
   `
 }
 
-function Playlist(props) {
-  const image = props.playlist.images.length > 0 ? props.playlist.images[props.playlist.images.length - 1] : null
+function Playlist({ playlist }) {
+  const image = playlist.images.length > 0 ? playlist.images[playlist.images.length - 1] : null
   const imageUrl = image ? image.url : null
   return html`
     <tr>
@@ -139,11 +290,16 @@ function Playlist(props) {
         ${imageUrl && html`<img class="main-table-img" src="${imageUrl}" />`}
       </td>
       <td>
-        ${props.playlist.name}
-        <span class="main-table-desc">${props.playlist.description}</span>
+        <a href="${getSpotifyUrl(playlist)}">${playlist.name}</a>
+        <span class="main-table-desc">${playlist.description}</span>
       </td>
-      <td>${props.playlist.owner.display_name}</td>
-      <td>${props.playlist.tracks.total}</td>
+      <td>
+        <a href="${getSpotifyUrl(playlist.owner)}">
+          ${playlist.owner.display_name}
+        </a>
+      </td>
+      <td>${playlist.public ? 'Yes' : 'No'}</td>
+      <td>${playlist.tracks.total}</td>
     </tr>
   `
 }

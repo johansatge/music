@@ -15,6 +15,50 @@ const apiScopes = [
   'playlist-read-private',
 ]
 
+export function getSpotifyUrl(resource) {
+  return resource.external_urls.spotify ? resource.external_urls.spotify : '#'
+}
+
+export async function fetchSpotifyFollowedArtists() {
+  let artists = []
+  const limit = 50
+  let offset = 0
+  let json = null
+  do {
+    json = await fetchApi({
+      endpoint: '/me/following',
+      query: { limit, offset, type: 'artist' },
+    })
+    if (json.artists.items) {
+      artists = [...artists, ...json.artists.items]
+    }
+    offset += json.artists.items.length
+  } while(json.artists.next)
+  return artists
+}
+
+export async function fetchSpotifyTopArtists() {
+  const json = await fetchApi({
+    endpoint: '/me/top/artists',
+    query: {
+      limit: 10,
+      offset: 0,
+    },
+  })
+  return json.items || []
+}
+
+export async function fetchSpotifyTopTracks() {
+  const json = await fetchApi({
+    endpoint: '/me/top/tracks',
+    query: {
+      limit: 10,
+      offset: 0,
+    },
+  })
+  return json.items || []
+}
+
 export async function fetchSpotifyPlaylists() {
   let playlists = []
   const limit = 50

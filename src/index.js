@@ -172,7 +172,7 @@ function Artist({ artist }) {
   const imageUrl = image ? image.url : null
   return html`
     <tr>
-      <td>
+      <td class="main-table-img-cell">
         ${imageUrl && html`<img class="main-table-img" src="${imageUrl}" />`}
       </td>
       <td>
@@ -227,7 +227,7 @@ function Track({ track }) {
   const imageUrl = image ? image.url : null
   return html`
     <tr>
-      <td>
+      <td class="main-table-img-cell">
         ${imageUrl && html`<img class="main-table-img" src="${imageUrl}" />`}
       </td>
       <td>
@@ -286,7 +286,7 @@ function Playlist({ playlist }) {
   const imageUrl = image ? image.url : null
   return html`
     <tr>
-      <td>
+      <td class="main-table-img-cell">
         ${imageUrl && html`<img class="main-table-img" src="${imageUrl}" />`}
       </td>
       <td>

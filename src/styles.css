@@ -97,6 +97,7 @@ html, body {
   left: 0;
   width: 100%;
   box-sizing: border-box;
+  z-index: 10;
 }
 
 .topbar-title {
@@ -161,7 +162,7 @@ html, body {
 
 .main-table td {
   font-size: 14px;
-  padding: 10px 8px 10px 0;
+  padding: 8px 8px 8px 0;
   border-top: 1px solid var(--colorLightGrey);
 }
 
@@ -171,13 +172,30 @@ html, body {
   font-size: 11px;
 }
 
+.main-table-img-cell {
+  position: relative;
+  width: 40px;
+  height: 36px;
+}
+
 .main-table-img {
-  width: 35px;
-  height: 35px;
-  float: left;
+  width: 36px;
+  height: 36px;
+  position: absolute;
   background: var(--colorLightGrey);
   border-radius: 50%;
-  margin: 0 10px 0 0;
+  top: 8px;
+  left: 0;
+  z-index: 2;
+}
+
+.main-table-img:hover {
+  top: -14px;
+  left: -22px;
+  width: 80px;
+  height: 80px;
+  transition: top 120ms, left 120ms, width 120ms, height 120ms;
+  z-index: 3;
 }
 
 .main-table a {

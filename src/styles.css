@@ -1,11 +1,9 @@
 :root {
-  --colorWhite: #ffffff;
-  --colorLightGrey: #e9e9e9;
-  --colorGrey: #999999;
-  --colorSpotifyGreen: #1db954;
-  --colorSpotifyBlack: #191414;
-  --colorBgGrey: #eeeeee;
-  --colorBgWhite: #ffffff;
+  --colorLightGrey: #282828;
+  --colorDarkGrey: #121212;
+  --colorText: #e4e4e4;
+  --colorText2nd: #979797;
+  --colorGreen: #1db954;
 }
 
 @font-face {
@@ -31,25 +29,36 @@ html, body, h1, h2, div, p, a, span, button {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-family: OpenSans;
-  color: var(--colorSpotifyBlack);
+  color: var(--colorText);
   appearance: none;
 }
 
 html, body {
-  background: var(--colorBgGrey);
+  background: var(--colorDarkGrey);
 }
 
 ::selection {
-  color: var(--colorWhite);
-  background: var(--colorSpotifyGreen);
+  color: var(--colorText);
+  background: var(--colorGreen);
+}
+
+.footer {
+  font-size: 12px;
+  text-align: center;
+  margin: 0 20px 40px 20px;
+}
+
+.footer a {
+  text-decoration: none;
+  color: var(--colorLightGrey);
 }
 
 .login {
   max-width: 500px;
-  background: var(--colorBgWhite);
+  background: var(--colorLightGrey);
   text-align: center;
   border-radius: 10px;
-  margin: 60px auto 40px auto;
+  margin: 60px auto 30px auto;
   padding: 20px 20px 20px 20px;
   box-sizing: border-box;
 }
@@ -69,8 +78,8 @@ html, body {
   display: inline-block;
   width: 100%;
   box-sizing: border-box;
-  background: var(--colorSpotifyGreen);
-  color: var(--colorWhite);
+  background: var(--colorGreen);
+  color: var(--colorText);
   padding: 16px 24px 16px 24px;
   text-decoration: none;
   font-weight: bold;
@@ -79,14 +88,8 @@ html, body {
   border-radius: 28px;
 }
 
-.login-github {
-  font-size: 12px;
-  text-decoration: none;
-  color: var(--colorGrey);
-}
-
 .topbar {
-  background: var(--colorSpotifyBlack);
+  background: var(--colorLightGrey);
   padding: 8px 20px 8px 20px;
   position: fixed;
   top: 0;
@@ -96,15 +99,16 @@ html, body {
 }
 
 .topbar-title {
+  position: relative;
   font-weight: bold;
   font-size: 24px;
-  color: var(--colorWhite);
+  color: var(--colorText);
   display: inline-block;
 }
 
 .topbar-user {
   float: right;
-  color: var(--colorWhite);
+  color: var(--colorText);
   font-size: 14px;
   margin: 3px 0 0 0;
 }
@@ -113,8 +117,8 @@ html, body {
   cursor: pointer;
   display: inline-block;
   box-sizing: border-box;
-  background: var(--colorBgWhite);
-  color: var(--colorSpotifyBlack);
+  background: var(--colorText);
+  color: var(--colorDarkGrey);
   padding: 4px 12px 4px 12px;
   text-decoration: none;
   border-radius: 28px;
@@ -124,10 +128,8 @@ html, body {
 
 .main {
   max-width: 800px;
-  background: var(--colorBgWhite);
   border-radius: 10px;
-  margin: 80px auto 20px auto;
-  padding: 20px 20px 20px 20px;
+  margin: 80px auto 30px auto;
   box-sizing: border-box;
 }
 
@@ -153,28 +155,17 @@ html, body {
   padding: 8px 14px 8px 0;
   text-align: left;
   text-transform: uppercase;
-  color: var(--colorSpotifyBlack);
+  color: var(--colorText2nd);
 }
 
 .main-table td {
   font-size: 14px;
-  padding: 8px 14px 8px 0;
+  padding: 10px 8px 10px 0;
   border-top: 1px solid var(--colorLightGrey);
 }
 
 .main-table-desc {
   display: block;
-  color: var(--colorGrey);
+  color: var(--colorText2nd);
   font-size: 11px;
-}
-
-.main-github {
-  font-size: 12px;
-  text-align: center;
-  margin: 0 20px 40px 20px;
-}
-
-.main-github a {
-  text-decoration: none;
-  color: var(--colorGrey);
 }

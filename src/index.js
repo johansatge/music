@@ -21,7 +21,11 @@ handleSpotifyAuth()
   })
 
 function App() {
-  return isConnectedToSpotify() ? html`<${Main} />` : html`<${Login} />`
+  return html`
+    ${isConnectedToSpotify() && html`<${Main} />`}
+    ${!isConnectedToSpotify() && html`<${Login} />`}
+    <${Footer} />
+  `
 }
 
 function Login() {
@@ -37,7 +41,6 @@ function Login() {
     <div class="login">
       <h1 class="login-title">Music</h1>
       ${authUrl && html`<a class="login-button" href="${authUrl}">Login on Spotify</a>`}
-      <a class="login-github" href="https://github.com/johansatge/music">Made in Antibes with ♥ View source on GitHub</a>
     </div>
   `
 }
@@ -61,7 +64,12 @@ function Main() {
       <h2 class="main-title">Playlists</h1>
       ${playlists && html`<${Playlists} playlists=${playlists} />`}
     </div>
-    <div class="main-github">
+  `
+}
+
+function Footer() {
+  return html`
+    <div class="footer">
       <a href="https://github.com/johansatge/music">Made in Antibes with ♥ View source on GitHub</a>
     </div>
   `
@@ -70,7 +78,9 @@ function Main() {
 function Topbar(props) {
   return html`
     <div class="topbar">
-      <h1 class="topbar-title">Music</h1>
+      <h1 class="topbar-title">
+        Music
+      </h1>
       <div class="topbar-user">
         ${props.profile && `Connected as ${props.profile.display_name}`}
         <button class="topbar-button" onClick=${logoutFromSpotify}>Logout</button>

@@ -59,8 +59,8 @@ function Main() {
   return html `
     <${Topbar} profile=${profile} />
     <div class="main">
-      <${FollowedArtists} />
-      <${TopArtists} />
+      <${Artists} fetchFunction=${fetchSpotifyFollowedArtists} title="Followed Artists" loadingText="Loading followed artists..." />
+      <${Artists} fetchFunction=${fetchSpotifyTopArtists} title="Top Artists" loadingText="Loading top artists..." />
       <${TopTracks} />
       <${Playlists} />
     </div>
@@ -89,79 +89,38 @@ function Topbar({ profile }) {
   `
 }
 
-function FollowedArtists() {
-  const [followedArtists, setFollowedArtists] = useState({
+function Artists({ title, loadingText, fetchFunction }) {
+  const [artists, setArtists] = useState({
     list: [],
     isLoading: true,
     error: null,
   })
   useEffect(() => {
-    fetchSpotifyFollowedArtists()
-      .then((followedArtists) => {
-        setFollowedArtists({ list: followedArtists, isLoading: false, error: null })
+    fetchFunction()
+      .then((artists) => {
+        setArtists({ list: artists, isLoading: false, error: null })
       }).catch((error) => {
-        setFollowedArtists({ list: [], isLoading: false, error })
+        setArtists({ list: [], isLoading: false, error })
       })
   }, [])
   return html`
-    <h2 class="main-title">Followed Artists</h1>
-    ${followedArtists.isLoading && html`
-      <div class="main-loader">
-        Loading followed artists...
-      </div>
+    <h2 class="main-title">${title}</h1>
+    ${artists.isLoading && html`
+      <div class="main-loader">${loadingText}</div>
     `}
-    ${followedArtists.error && html`
+    ${artists.error && html`
       <div class="main-error">
-        An error occurred: ${followedArtists.error.message}
+        An error occurred: ${artists.error.message}
       </div>
     `}
-    ${!followedArtists.isLoading && !followedArtists.error && html`
+    ${!artists.isLoading && !artists.error && html`
       <table class="main-table" cellpadding="0" cellspacing="0">
         <tr>
           <th></th>
           <th>Name</th>
           <th>Genre</th>
         </tr>
-        ${followedArtists.list.map((artist) => html`<${Artist} artist=${artist} />`)}
-      </table>
-    `}
-  `
-}
-
-function TopArtists() {
-  const [topArtists, setTopArtists] = useState({
-    list: [],
-    isLoading: true,
-    error: null,
-  })
-  useEffect(() => {
-    fetchSpotifyTopArtists()
-      .then((topArtists) => {
-        setTopArtists({ list: topArtists, isLoading: false, error: null })
-      }).catch((error) => {
-        setTopArtists({ list: [], isLoading: false, error })
-      })
-  }, [])
-  return html`
-    <h2 class="main-title">Top Artists</h1>
-    ${topArtists.isLoading && html`
-      <div class="main-loader">
-        Loading top artists...
-      </div>
-    `}
-    ${topArtists.error && html`
-      <div class="main-error">
-        An error occurred: ${topArtists.error.message}
-      </div>
-    `}
-    ${!topArtists.isLoading && !topArtists.error && html`
-      <table class="main-table" cellpadding="0" cellspacing="0">
-        <tr>
-          <th></th>
-          <th>Name</th>
-          <th>Genre</th>
-        </tr>
-        ${topArtists.list.map((artist) => html`<${Artist} artist=${artist} />`)}
+        ${artists.list.map((artist) => html`<${Artist} artist=${artist} />`)}
       </table>
     `}
   `

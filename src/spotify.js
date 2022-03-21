@@ -133,6 +133,8 @@ async function fetchApi({ endpoint, query = {} }) {
   return json
 }
 
+let freshAccessTokenFetcher = null // Fetch one single access token at a time
+
 async function getFreshAccessToken() {
   const tokens = getTokensFromStorage()
   if (!tokens || !tokens.accessToken) {
@@ -141,7 +143,18 @@ async function getFreshAccessToken() {
   if (tokens.expires && Date.now() < tokens.expires && tokens.accessToken) {
     return tokens.accessToken
   }
-  return fetchAndStoreAccessToken({ grantType: 'refresh_token', refreshToken: tokens.refreshToken })
+  try {
+    if (!freshAccessTokenFetcher) {
+      freshAccessTokenFetcher = fetchAndStoreAccessToken({ grantType: 'refresh_token', refreshToken: tokens.refreshToken })
+    }
+    const accessToken = await freshAccessTokenFetcher
+    freshAccessTokenFetcher = null
+    return accessToken
+  }
+  catch(error) {
+    freshAccessTokenFetcher = null
+    throw error
+  }
 }
 
 // https://developer.spotify.com/documentation/general/guides/authorization/code-flow/#request-access-token
@@ -167,8 +180,8 @@ async function fetchAndStoreAccessToken({ grantType, refreshToken, code }) {
     throw new Error(`${json.error} (${json.error_description})`)
   }
   const tokens = {
-    accessToken: json.access_token,
     expires: Date.now() + json.expires_in * 1000,
+    accessToken: json.access_token,
     refreshToken: json.refresh_token || refreshToken,
   }
   window.localStorage.setItem(localStorageTokens, JSON.stringify(tokens))

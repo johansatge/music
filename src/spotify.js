@@ -19,6 +19,12 @@ export function getSpotifyUrl(resource) {
   return resource.external_urls.spotify ? resource.external_urls.spotify : '#'
 }
 
+export function getSpotifyImage(resource) {
+  // Always return smallest image for now
+  const image = resource.images.length > 0 ? resource.images[resource.images.length - 1] : null
+  return image ? image.url : null
+}
+
 export async function fetchSpotifyFollowedArtists() {
   let artists = []
   const limit = 50

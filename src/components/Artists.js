@@ -1,7 +1,7 @@
 import { h } from 'preact'
 import htm from 'htm'
 import { useState, useEffect } from 'preact/hooks'
-import { getSpotifyUrl } from '../spotify.js'
+import { getSpotifyUrl, getSpotifyImage } from '../spotify.js'
 
 const html = htm.bind(h)
 
@@ -43,8 +43,7 @@ export function Artists({ title, loadingText, fetchFunction }) {
 }
 
 function Artist({ artist }) {
-  const image = artist.images.length > 0 ? artist.images[artist.images.length - 1] : null
-  const imageUrl = image ? image.url : null
+  const imageUrl = getSpotifyImage(artist)
   return html`
     <tr>
       <td class="main-table-img-cell">

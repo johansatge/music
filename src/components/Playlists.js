@@ -1,7 +1,7 @@
 import { h } from 'preact'
 import htm from 'htm'
 import { useState, useEffect } from 'preact/hooks'
-import { getSpotifyUrl, fetchSpotifyPlaylists } from '../spotify.js'
+import { getSpotifyUrl, getSpotifyImage, fetchSpotifyPlaylists } from '../spotify.js'
 
 const html = htm.bind(h)
 
@@ -47,8 +47,7 @@ export function Playlists() {
 }
 
 function Playlist({ playlist }) {
-  const image = playlist.images.length > 0 ? playlist.images[playlist.images.length - 1] : null
-  const imageUrl = image ? image.url : null
+  const imageUrl = getSpotifyImage(playlist)
   return html`
     <tr>
       <td class="main-table-img-cell">

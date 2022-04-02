@@ -11,6 +11,7 @@ export function Artists({ title, loadingText, fetchFunction }) {
     isLoading: true,
     error: null,
   })
+  const [isCollapsed, setIsCollapsed] = useState(true)
   useEffect(() => {
     fetchFunction()
       .then((artists) => {
@@ -20,25 +21,33 @@ export function Artists({ title, loadingText, fetchFunction }) {
       })
   }, [])
   return html`
-    <h2 class="main-title">${title}</h1>
-    ${artists.isLoading && html`
-      <div class="main-loader">${loadingText}</div>
-    `}
-    ${artists.error && html`
-      <div class="main-error">
-        An error occurred: ${artists.error.message}
-      </div>
-    `}
-    ${!artists.isLoading && !artists.error && html`
-      <table class="main-table" cellpadding="0" cellspacing="0">
-        <tr>
-          <th></th>
-          <th>Name</th>
-          <th>Genre</th>
-        </tr>
-        ${artists.list.map((artist) => html`<${Artist} artist=${artist} />`)}
-      </table>
-    `}
+    <h2 class="main-title" onclick=${() => setIsCollapsed(!isCollapsed)}>
+      <span class="main-title-toggle ${isCollapsed ? 'main-title-toggle-collapsed' : ''}"></span>
+      ${title}
+      <span class="main-title-info">
+        ${!artists.isLoading && !artists.error ? artists.list.length : '...' }
+      </span>
+    </h1>
+    <div class="main-section" style="display: ${isCollapsed ? 'none' : 'block'}">
+      ${artists.isLoading && html`
+        <div class="main-loader">${loadingText}</div>
+      `}
+      ${artists.error && html`
+        <div class="main-error">
+          An error occurred: ${artists.error.message}
+        </div>
+      `}
+      ${!artists.isLoading && !artists.error && html`
+        <table class="main-table" cellpadding="0" cellspacing="0">
+          <tr>
+            <th></th>
+            <th>Name</th>
+            <th>Genre</th>
+          </tr>
+          ${artists.list.map((artist) => html`<${Artist} artist=${artist} />`)}
+        </table>
+      `}
+    </div>
   `
 }
 

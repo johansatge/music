@@ -145,6 +145,55 @@ html, body {
   font-size: 28px;
   font-weight: bold;
   margin: 0 0 20px 0;
+  cursor: pointer;
+}
+
+.main-title-toggle {
+  position: relative;
+  display: inline-block;
+  float: left;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  margin: 4px 12px 0 0;
+  background: var(--colorLightGrey);
+  transform: rotate(90deg);
+  transition: transform 120ms;
+}
+
+.main-title-toggle::before,
+.main-title-toggle::after {
+  display: block;
+  content: ' ';
+  position: absolute;
+  width: 10px;
+  height: 3px;
+  background: var(--colorText);
+}
+
+.main-title-toggle::before {
+  top: 12px;
+  left: 11px;
+  transform: rotate(45deg);
+}
+
+.main-title-toggle::after {
+  top: 17px;
+  left: 11px;
+  transform: rotate(-45deg);
+}
+
+.main-title-toggle-collapsed {
+  transform: rotate(0deg);
+}
+
+.main-title-info {
+  background: var(--colorGreen);
+  color: var(--colorDarkGrey);
+  font-size: 12px;
+  margin: 0 0 0 8px;
+  padding: 2px 4px 2px 4px;
+  border-radius: 5px;
 }
 
 .main-table {

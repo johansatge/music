@@ -11,6 +11,7 @@ export function Playlists() {
     isLoading: true,
     error: null,
   })
+  const [isCollapsed, setIsCollapsed] = useState(true)
   useEffect(() => {
     fetchSpotifyPlaylists()
       .then((playlists) => {
@@ -20,29 +21,37 @@ export function Playlists() {
       })
   }, [])
   return html`
-    <h2 class="main-title">Playlists</h1>
-    ${playlists.isLoading && html`
-      <div class="main-loader">
-        Loading playlists...
-      </div>
-    `}
-    ${playlists.error && html`
-      <div class="main-error">
-        An error occurred: ${playlists.error.message}
-      </div>
-    `}
-    ${!playlists.isLoading && !playlists.error && html`
-      <table class="main-table" cellpadding="0" cellspacing="0">
-        <tr>
-          <th></th>
-          <th>Name</th>
-          <th>Owner</th>
-          <th>Public</th>
-          <th>Tracks</th>
-        </tr>
-        ${playlists.list.map((playlist) => html`<${Playlist} playlist=${playlist} />`)}
-      </table>
-    `}
+    <h2 class="main-title" onclick=${() => setIsCollapsed(!isCollapsed)}>
+      <span class="main-title-toggle ${isCollapsed ? 'main-title-toggle-collapsed' : ''}"></span>
+      Playlists
+      <span class="main-title-info">
+        ${!playlists.isLoading && !playlists.error ? playlists.list.length : '...' }
+      </span>
+    </h1>
+    <div class="main-section" style="display: ${isCollapsed ? 'none' : 'block'}">
+      ${playlists.isLoading && html`
+        <div class="main-loader">
+          Loading playlists...
+        </div>
+      `}
+      ${playlists.error && html`
+        <div class="main-error">
+          An error occurred: ${playlists.error.message}
+        </div>
+      `}
+      ${!playlists.isLoading && !playlists.error && html`
+        <table class="main-table" cellpadding="0" cellspacing="0">
+          <tr>
+            <th></th>
+            <th>Name</th>
+            <th>Owner</th>
+            <th>Public</th>
+            <th>Tracks</th>
+          </tr>
+          ${playlists.list.map((playlist) => html`<${Playlist} playlist=${playlist} />`)}
+        </table>
+      `}
+    </div>
   `
 }
 

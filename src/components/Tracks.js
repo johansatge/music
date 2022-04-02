@@ -11,6 +11,7 @@ export function TopTracks() {
     isLoading: true,
     error: null,
   })
+  const [isCollapsed, setIsCollapsed] = useState(true)
   useEffect(() => {
     fetchSpotifyTopTracks()
       .then((topTracks) => {
@@ -20,27 +21,35 @@ export function TopTracks() {
       })
   }, [])
   return html`
-    <h2 class="main-title">Top Tracks</h1>
-    ${topTracks.isLoading && html`
-      <div class="main-loader">
-        Loading top tracks...
-      </div>
-    `}
-    ${topTracks.error && html`
-      <div class="main-error">
-        An error occurred: ${topTracks.error.message}
-      </div>
-    `}
-    ${!topTracks.isLoading && !topTracks.error && html`
-      <table class="main-table" cellpadding="0" cellspacing="0">
-        <tr>
-          <th></th>
-          <th>Name</th>
-          <th>Artist</th>
-        </tr>
-        ${topTracks.list.map((track) => html`<${Track} track=${track} />`)}
-      </table>
-    `}
+    <h2 class="main-title" onclick=${() => setIsCollapsed(!isCollapsed)}>
+      <span class="main-title-toggle ${isCollapsed ? 'main-title-toggle-collapsed' : ''}"></span>
+      Top Tracks
+      <span class="main-title-info">
+        ${!topTracks.isLoading && !topTracks.error ? topTracks.list.length : '...' }
+      </span>
+    </h1>
+    <div class="main-section" style="display: ${isCollapsed ? 'none' : 'block'}">
+      ${topTracks.isLoading && html`
+        <div class="main-loader">
+          Loading top tracks...
+        </div>
+      `}
+      ${topTracks.error && html`
+        <div class="main-error">
+          An error occurred: ${topTracks.error.message}
+        </div>
+      `}
+      ${!topTracks.isLoading && !topTracks.error && html`
+        <table class="main-table" cellpadding="0" cellspacing="0">
+          <tr>
+            <th></th>
+            <th>Name</th>
+            <th>Artist</th>
+          </tr>
+          ${topTracks.list.map((track) => html`<${Track} track=${track} />`)}
+        </table>
+      `}
+    </div>
   `
 }
 

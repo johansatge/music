@@ -3,13 +3,13 @@ import htm from 'htm'
 import { useState, useEffect } from 'preact/hooks'
 import {
   isConnectedToSpotify,
-  fetchSpotifyProfile,
   fetchSpotifyTopArtists,
   fetchSpotifyFollowedArtists,
   handleSpotifyAuth,
   logoutFromSpotify,
 } from './spotify.js'
 import { Login } from './components/Login.js'
+import { Profile } from './components/Profile.js'
 import { Artists } from './components/Artists.js'
 import { TopTracks } from './components/Tracks.js'
 import { Playlists } from './components/Playlists.js'
@@ -39,23 +39,17 @@ function App() {
 }
 
 function Main() {
-  const [profile, setProfile] = useState(null)
-  useEffect(() => {
-    fetchSpotifyProfile().then(setProfile).catch((error) => {
-      // Do nothing on error for now
-    })
-  }, [])
   return html`
     <div class="topbar">
       <h1 class="topbar-title">
         Music
       </h1>
-      <div class="topbar-user">
-        ${profile && `Connected as ${profile.display_name}`}
+      <div class="topbar-buttons">
         <button class="topbar-button" onClick=${logoutFromSpotify}>Logout</button>
       </div>
     </div>
     <div class="main">
+      <${Profile} />
       <${Artists} fetchFunction=${fetchSpotifyFollowedArtists} title="Followed Artists" loadingText="Loading followed artists..." />
       <${Artists} fetchFunction=${fetchSpotifyTopArtists} title="Top Artists" loadingText="Loading top artists..." />
       <${TopTracks} />

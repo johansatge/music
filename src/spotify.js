@@ -20,9 +20,11 @@ export function getSpotifyUrl(resource) {
 }
 
 export function getSpotifyImage(resource) {
+  if (!resource || !resource.images || resource.images.length === 0) {
+    return null
+  }
   // Always return smallest image for now
-  const image = resource.images.length > 0 ? resource.images[resource.images.length - 1] : null
-  return image ? image.url : null
+  return resource.images[resource.images.length - 1].url
 }
 
 export async function fetchSpotifyFollowedArtists() {

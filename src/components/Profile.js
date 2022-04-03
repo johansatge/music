@@ -24,7 +24,7 @@ export function Profile() {
   return html`
     <div class="main-profile">
       <img class="main-profile-pic" src="${imageUrl}" />
-      <button class="main-profile-logout" onClick=${logoutFromSpotify}>Logout</button>
+      <button class="main-profile-logout" onclick=${logoutFromSpotify}>Logout</button>
       <span class="main-profile-name">${profile.data ? profile.data.display_name : '...'}</span>
       ${profile.data ? profile.data.email : '...'}<br />
     </div>

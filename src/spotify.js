@@ -85,6 +85,18 @@ export async function fetchSpotifyPlaylists() {
   return playlists
 }
 
+export async function fetchSpotifyPlaylist({ playlistId, playlistNextUrl }) {
+  if (playlistId) {
+    return fetchApi({
+      endpoint: `/playlists/${playlistId}/tracks`,
+      query: { limit: 50 },
+    })
+  }
+  return fetchApi({
+      url: playlistNextUrl,
+    })
+}
+
 export async function fetchSpotifyProfile() {
   return fetchApi({ endpoint: '/me' })
 }
@@ -120,13 +132,15 @@ function getTokensFromStorage() {
   }
 }
 
-async function fetchApi({ endpoint, query = {} }) {
+async function fetchApi({ endpoint, url, query = {} }) {
   const accessToken = await getFreshAccessToken()
   const urlSearchParams = new URLSearchParams()
   for(const [key, value] of Object.entries(query)) {
     urlSearchParams.set(key, value)
   }
-  const url = `https://api.spotify.com/v1${endpoint}?${urlSearchParams.toString()}`
+  if (!url) {
+    url = `https://api.spotify.com/v1${endpoint}?${urlSearchParams.toString()}`
+  }
   const response = await window.fetch(url, {
     method: 'GET',
     headers: {

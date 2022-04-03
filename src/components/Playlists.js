@@ -1,7 +1,13 @@
 import { h } from 'preact'
 import htm from 'htm'
 import { useState, useEffect } from 'preact/hooks'
-import { getSpotifyUrl, getSpotifyImage, fetchSpotifyPlaylists } from '../spotify.js'
+import {
+  getSpotifyUrl,
+  getSpotifyImage,
+  fetchSpotifyPlaylists,
+  fetchSpotifyPlaylist,
+} from '../spotify.js'
+import { downloadJson, getFormattedDate } from '../helpers.js'
 
 const html = htm.bind(h)
 
@@ -47,6 +53,7 @@ export function Playlists() {
             <th>Owner</th>
             <th>Public</th>
             <th>Tracks</th>
+            <th>Actions</th>
           </tr>
           ${playlists.list.map((playlist) => html`<${Playlist} playlist=${playlist} />`)}
         </table>
@@ -57,6 +64,38 @@ export function Playlists() {
 
 function Playlist({ playlist }) {
   const imageUrl = getSpotifyImage(playlist)
+  const [exportState, setExportState] = useState({ status: 'idle', exportProgress: 0 })
+  const onExportPlaylist = () => {
+    if (exportState.status !== 'idle') {
+      return
+    }
+    setExportState({ status: 'exporting', exportProgress: 0 })
+    exportPlaylistRecursive({ playlistId: playlist.id, tracks: [] })
+  }
+  const exportPlaylistRecursive = ({ playlistId, playlistNextUrl, tracks }) => {
+    fetchSpotifyPlaylist({ playlistId, playlistNextUrl })
+      .then((result) => {
+        tracks = [...tracks, ...result.items]
+        setExportState({ status: 'exporting', exportProgress: Math.round(tracks.length / playlist.tracks.total * 100) })
+        if (result.next) {
+          exportPlaylistRecursive({ playlistNextUrl: result.next, tracks })
+        } else {
+          downloadJson({
+            filename: `${getFormattedDate()} ${playlist.name}.json`,
+            json: {
+              playlist,
+              tracks,
+            }
+          })
+          setExportState({ status: 'idle', exportProgress: 0 })
+        }
+      })
+      .catch((error) => {
+        // Lazy error handler
+        alert(`Could not export playlist: ${error.message}`)
+        setExportState({ status: 'idle', exportProgress: 0 })
+      })
+  }
   return html`
     <tr>
       <td class="main-table-img-cell">
@@ -73,6 +112,14 @@ function Playlist({ playlist }) {
       </td>
       <td>${playlist.public ? 'Yes' : 'No'}</td>
       <td>${playlist.tracks.total}</td>
+      <td>
+        <button
+          class="main-table-button"
+          style="background: linear-gradient(to right, var(--colorGreen) ${exportState.exportProgress}%, var(--colorText) 0%)"
+          disabled=${playlist.tracks.total === 0}
+          onclick=${onExportPlaylist}
+        >Export</button>
+      </td>
     </tr>
   `
 }

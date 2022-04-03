@@ -1,7 +1,7 @@
 import { h } from 'preact'
 import htm from 'htm'
 import { useState, useEffect } from 'preact/hooks'
-import { fetchSpotifyProfile, getSpotifyImage } from '../spotify.js'
+import { fetchSpotifyProfile, getSpotifyImage, logoutFromSpotify } from '../spotify.js'
 
 const html = htm.bind(h)
 
@@ -24,6 +24,7 @@ export function Profile() {
   return html`
     <div class="main-profile">
       <img class="main-profile-pic" src="${imageUrl}" />
+      <button class="main-profile-logout" onClick=${logoutFromSpotify}>Logout</button>
       <span class="main-profile-name">${profile.data ? profile.data.display_name : '...'}</span>
       ${profile.data ? profile.data.email : '...'}<br />
     </div>

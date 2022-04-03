@@ -89,63 +89,40 @@ html, body {
   border-radius: 28px;
 }
 
-.topbar {
-  background: var(--colorLightGrey);
-  padding: 8px 20px 8px 20px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  box-sizing: border-box;
-  z-index: 10;
-}
-
-.topbar-title {
-  position: relative;
-  font-weight: bold;
-  font-size: 24px;
-  color: var(--colorText);
-  display: inline-block;
-}
-
-.topbar-buttons {
-  float: right;
-  margin: 3px 0 0 0;
-}
-
-.topbar-button {
-  cursor: pointer;
-  display: inline-block;
-  box-sizing: border-box;
-  background: var(--colorText);
-  color: var(--colorDarkGrey);
-  padding: 4px 12px 4px 12px;
-  text-decoration: none;
-  border-radius: 28px;
-  margin: 0 0 0 10px;
-  font-size: 14px;
-}
-
 .main {
   max-width: 800px;
   border-radius: 10px;
-  margin: 80px auto 30px auto;
+  margin: 0 auto 30px auto;
   box-sizing: border-box;
 }
 
 @media screen and (max-width: 840px) {
   .main {
-    margin: 80px 20px 20px 20px;
+    margin: 0 20px 30px 20px;
   }
 }
 
+.main-app {
+  color: var(--colorDarkGrey);
+  background: var(--colorGreen);
+  font-size: 30px;
+  font-weight: bold;
+  display: inline-block;
+  margin: 0 0 30px 0;
+  padding: 2px 12px 2px 12px;
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+
 .main-profile {
-  border: 1px solid var(--colorLightGrey);
+  background: var(--colorLightGrey);
   padding: 15px;
   border-radius: 8px;
   margin: 0 0 30px 0;
   min-height: 56px;
   font-size: 14px;
+  position: relative;
 }
 
 .main-profile-name {
@@ -162,6 +139,22 @@ html, body {
   border-radius: 50%;
   float: left;
   margin: 0 15px 10px 0;
+}
+
+.main-profile-logout {
+  cursor: pointer;
+  display: inline-block;
+  box-sizing: border-box;
+  background: var(--colorText);
+  color: var(--colorDarkGrey);
+  padding: 4px 12px 4px 12px;
+  text-decoration: none;
+  border-radius: 28px;
+  margin: 14px 0 0 10px;
+  font-size: 12px;
+  float: right;
+  font-weight: bold;
+  text-transform: uppercase;
 }
 
 .main-title {

@@ -6,7 +6,6 @@ import {
   fetchSpotifyTopArtists,
   fetchSpotifyFollowedArtists,
   handleSpotifyAuth,
-  logoutFromSpotify,
 } from './spotify.js'
 import { Login } from './components/Login.js'
 import { Profile } from './components/Profile.js'
@@ -40,20 +39,13 @@ function App() {
 
 function Main() {
   return html`
-    <div class="topbar">
-      <h1 class="topbar-title">
-        Music
-      </h1>
-      <div class="topbar-buttons">
-        <button class="topbar-button" onClick=${logoutFromSpotify}>Logout</button>
-      </div>
-    </div>
     <div class="main">
+      <h1 class="main-app">Music</h1>
       <${Profile} />
+      <${Playlists} />
       <${Artists} fetchFunction=${fetchSpotifyFollowedArtists} title="Followed Artists" loadingText="Loading followed artists..." />
       <${Artists} fetchFunction=${fetchSpotifyTopArtists} title="Top Artists" loadingText="Loading top artists..." />
       <${TopTracks} />
-      <${Playlists} />
     </div>
   `
 }

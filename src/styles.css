@@ -1,5 +1,5 @@
 :root {
-  --colorLightGrey: #282828;
+  --colorLightGrey: #1c1c1c;
   --colorDarkGrey: #121212;
   --colorText: #e4e4e4;
   --colorText2nd: #979797;
@@ -51,7 +51,7 @@ html, body {
 
 .footer a {
   text-decoration: none;
-  color: var(--colorLightGrey);
+  color: var(--colorText2nd);
 }
 
 .login {
@@ -114,7 +114,6 @@ html, body {
   border-bottom-right-radius: 8px;
 }
 
-
 .main-profile {
   background: var(--colorLightGrey);
   padding: 15px;
@@ -135,8 +134,8 @@ html, body {
 .main-profile-pic {
   width: 56px;
   height: 56px;
-  background: var(--colorLightGrey);
-  border-radius: 50%;
+  background: var(--colorDarkGrey);
+  border-radius: 28px;
   float: left;
   margin: 0 15px 10px 0;
 }
@@ -157,10 +156,16 @@ html, body {
   text-transform: uppercase;
 }
 
+.main-section {
+  background: var(--colorLightGrey);
+  border-radius: 8px;
+  padding: 15px;
+  margin: 0 0 20px 0;
+}
+
 .main-title {
   font-size: 24px;
   font-weight: bold;
-  margin: 0 0 20px 0;
   cursor: pointer;
 }
 
@@ -172,7 +177,7 @@ html, body {
   height: 28px;
   border-radius: 50%;
   margin: 4px 12px 0 0;
-  background: var(--colorLightGrey);
+  background: var(--colorDarkGrey);
   transform: rotate(90deg);
   transition: transform 120ms;
 }
@@ -214,7 +219,7 @@ html, body {
 
 .main-table {
   width: 100%;
-  margin: 0 0 30px 0;
+  margin: 20px 0 0 0;
 }
 
 .main-table th {
@@ -228,7 +233,7 @@ html, body {
 .main-table td {
   font-size: 14px;
   padding: 8px 8px 8px 0;
-  border-top: 1px solid var(--colorLightGrey);
+  /*border-top: 1px solid var(--colorDarkGrey);*/
 }
 
 .main-table-desc {
@@ -271,7 +276,7 @@ html, body {
 .main-table-tag {
   font-size: 12px;
   display: inline-block;
-  background: var(--colorLightGrey);
+  background: var(--colorDarkGrey);
   color: var(--colorText);
   border-radius: 10px;
   padding: 3px 8px 3px 8px;
@@ -295,17 +300,11 @@ html, body {
 
 .main-loader {
   font-size: 14px;
-  padding: 10px 0 10px 0;
-  border-top: 1px solid var(--colorLightGrey);
-  border-bottom: 1px solid var(--colorLightGrey);
-  margin: 0 0 30px 0;
+  margin: 20px 0 0 0;
 }
 
 .main-error {
   font-size: 14px;
   color: var(--colorError);
-  padding: 10px 0 10px 0;
-  border-top: 1px solid var(--colorLightGrey);
-  border-bottom: 1px solid var(--colorLightGrey);
-  margin: 0 0 30px 0;
+  margin: 20px 0 0 0;
 }

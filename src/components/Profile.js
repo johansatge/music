@@ -21,12 +21,22 @@ export function Profile() {
       })
   }, [])
   const imageUrl = getSpotifyImage(profile.data)
+  let name = '...'
+  let email = '...'
+  if (profile.data) {
+    name = profile.data.display_name
+    email = profile.data.email
+  }
+  if (profile.error) {
+    name = 'Could not load profile'
+    email = profile.error.message
+  }
   return html`
     <div class="main-profile">
       <img class="main-profile-pic" src="${imageUrl}" />
       <button class="main-profile-logout" onclick=${logoutFromSpotify}>Logout</button>
-      <span class="main-profile-name">${profile.data ? profile.data.display_name : '...'}</span>
-      ${profile.data ? profile.data.email : '...'}<br />
+      <span class="main-profile-name">${name}</span>
+      ${email}
     </div>
   `
 }
